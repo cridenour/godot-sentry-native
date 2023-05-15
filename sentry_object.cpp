@@ -18,7 +18,7 @@ sentry_value_t _on_before_send(sentry_value_t event, void *hint,
 		void *closure) {
 	// Have they opted out?
 	if (FileAccess::exists(OS::get_singleton()->get_user_data_dir() + "/no-reporting")) {
-		return NULL;
+		return sentry_value_new_null();
 	}
 
 	// Flush Log file
