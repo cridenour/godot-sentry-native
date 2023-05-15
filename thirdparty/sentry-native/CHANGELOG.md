@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.6.2
+
+**Features**:
+
+- Extend API with ptr/len-string interfaces. ([#827](https://github.com/getsentry/sentry-native/pull/827))
+- Allow setting sdk_name at runtime ([#834](https://github.com/getsentry/sentry-native/pull/834))
+
+## 0.6.1
+
+**Fixes**:
+
+- Remove OpenSSL as direct dependency for the crashpad backend on Linux. ([#812](https://github.com/getsentry/sentry-native/pull/812), [crashpad#81](https://github.com/getsentry/crashpad/pull/81))
+- Check `libcurl` for feature `AsynchDNS` at compile- and runtime. ([#813](https://github.com/getsentry/sentry-native/pull/813))
+- Allow setting `CRASHPAD_WER_ENABLED` when using system crashpad. ([#816](https://github.com/getsentry/sentry-native/pull/816))
+
+**Docs**:
+
+- Add badges for conan, nix and vcpkg package-repos to README. ([#795](https://github.com/getsentry/sentry-native/pull/795))
+
+**Thank you**:
+
+Features, fixes and improvements in this release have been contributed by:
+
+- [@Cyriuz](https://github.com/Cyriuz)
+- [@MartinDelille](https://github.com/MartinDelille)
+
 ## 0.6.0
 
 **Breaking changes**:
