@@ -2,6 +2,7 @@
 #include "thirdparty/sentry-native/include/sentry.h"
 
 #include "core/config/project_settings.h"
+#include "core/io/file_access.h"
 #include "core/os/os.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
@@ -15,6 +16,11 @@ Sentry *Sentry::singleton = NULL;
 // sentry
 sentry_value_t _on_before_send(sentry_value_t event, void *hint,
 		void *closure) {
+	// Have they opted out?
+	if (FileAccess::exists(OS::get_singleton()->get_user_data_dir() + "/no-reporting")) {
+		return NULL;
+	}
+
 	// Flush Log file
 	bool original_flush = ProjectSettings::get_singleton()->get_setting(
 			"application/run/flush_stdout_on_print");
@@ -31,10 +37,10 @@ Sentry::Sentry() {
 	singleton = this;
 
 	// Get Project Settings
-	String sentry_dsn = GLOBAL_DEF(PropertyInfo(Variant::STRING, "thirdparty/sentry/dsn"), String(""));
-	String sentry_environment = GLOBAL_DEF(PropertyInfo(Variant::STRING, "thirdparty/sentry/environment"), String("production"));
-	String app_version = GLOBAL_DEF(PropertyInfo(Variant::STRING, "thirdparty/sentry/app_version"), String("1.0")); // version of your game to report to Sentry
-	send_ip_address = GLOBAL_DEF(PropertyInfo(Variant::BOOL, "thirdparty/sentry/send_ip_address"), false); // Turn on to include ip address of user in crash report
+	String sentry_dsn = GLOBAL_DEF(PropertyInfo(Variant::STRING, "third_party/sentry/dsn"), String(""));
+	String sentry_environment = GLOBAL_DEF(PropertyInfo(Variant::STRING, "third_party/sentry/environment"), String("production"));
+	String app_version = GLOBAL_DEF(PropertyInfo(Variant::STRING, "third_party/sentry/app_version"), String("1.0")); // version of your game to report to Sentry
+	send_ip_address = GLOBAL_DEF(PropertyInfo(Variant::BOOL, "third_party/sentry/send_ip_address"), false); // Turn on to include ip address of user in crash report
 	String app_name = ProjectSettings::get_singleton()->get_setting("application/config/name");
 
 	if (sentry_dsn == "") {
@@ -44,9 +50,13 @@ Sentry::Sentry() {
 		return;
 	}
 
+	// Disable Godot's Crash handler, otherwise Sentry won't get full callstack when running debug or release_debug build
+	OS::get_singleton()->disable_crash_handler();
+
 	String sentry_db_path =
 			OS::get_singleton()->get_user_data_dir() +
 			"/.sentry-native"; // Sentry needs a path it can write to.
+
 	app_name = app_name.to_lower().replace(" ", "-"); // Slugify the name.
 	String release = vformat("%s@%s", app_name, app_version); // A release like `game@1.0`.
 

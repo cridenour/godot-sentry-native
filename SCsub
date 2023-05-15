@@ -5,25 +5,27 @@ import pathlib
 Import("env")
 module_env = env.Clone()
 
-import os
-import inspect
-src_file_path = inspect.getfile(lambda: None)
-src_folder_path = os.path.dirname(src_file_path)
+module_path = pathlib.Path(Dir(".").abspath)
 
-module_env.Append(CPPDEFINES=["SENTRY_BUILD_STATIC"])
+env.Append(LIBPATH=[module_path / "thirdparty/sentry-native/install/lib"])
+env.Append(LINKFLAGS=[
+    "sentry.lib",
+    "crashpad_client.lib",
+    "crashpad_compat.lib",
+    "crashpad_getopt.lib",
+    "crashpad_handler_lib.lib",
+    "crashpad_minidump.lib",
+    "crashpad_snapshot.lib",
+    "crashpad_tools.lib",
+    "crashpad_util.lib",
+    "crashpad_zlib.lib",
+    "mini_chromium.lib",
+    "winhttp.lib",
+    "version.lib",
+    "dbghelp.lib"
+])
+#env.Append(LIBS=["version", "winhttp", "dbghelp",])
+env.Append(CPPPATH=["thirdparty/sentry-native/install/include"])
 
-import subprocess
-old_cwd = os.getcwd()
-os.chdir("thirdparty/sentry-native")
-if module_env["platform"] == "windows":
-    print(src_folder_path)
-    env.Append(LIBPATH=[src_folder_path + "/thirdparty/sentry-native/build"])
-    env.Append(LIBPATH=[src_folder_path + "/thirdparty/sentry-native/build/external"])
-    # subprocess.check_call([''])
-    env.Append(LIBS=["sentry", "libbreakpad_client"])
-    # env.Append(LINKFLAGS=[src_folder_path + "/thirdparty/sentry-native/build/libsentry.a"])
-    env.Append(LIBS=["version", "winhttp", "dbghelp",])
-    env.Append(CPPPATH=["thirdparty/sentry-native/include"])
-os.chdir(old_cwd)
 # Godot source files
 module_env.add_source_files(module_env.modules_sources, "*.cpp")
